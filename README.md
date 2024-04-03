@@ -1,2 +1,3 @@
 # NuuRefugeTsunami
-Code do accompany a paper
+
+Code to accompany a paper (in preparation), links and code to appear.
