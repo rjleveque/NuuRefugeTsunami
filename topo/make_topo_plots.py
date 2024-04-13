@@ -102,7 +102,7 @@ if 1:
 figure(figsize=(12,12))
 ax = axes()
 
-imshow(rgb, extent=extent)
+imshow(rgb, extent=offshore_extent)
 contour(tN.X, tN.Y, tN.Z, range(4), colors='b', linestyles='-',linewidths=0.8)
 axis(NuuBox)
 title("Nu'u Study Area, contours at 0, 1, 2, 3 meters", fontsize=15);
