@@ -21,22 +21,27 @@ from nuu_debris import compute_debris_paths
 
 # local module:
 import debris_tools
-    
+#from clawpack.geoclaw import debris_tools
 
-mstr = '10'  # slump amplitude (rerun code for 05, 10, 15)
+
+mstr = '05'  # slump amplitude (rerun code for 05, 10, 15)
 outdir = '_output_%sm' % mstr
+#outdir = '_output'
 
 print('Looking for output in ',outdir)
 
 output_format = 'binary32'
+qmap = 'geoclaw-bouss'  # defines mapping for fgout variables
 
 graphics_dir = os.path.abspath('../topo')
 hillshade_image = load(graphics_dir + '/NuuHillshadeOffshore.npy')
 hillshade_extent = loadtxt(graphics_dir + '/NuuHillshadeOffshore_extent.txt')
 
 # Instantiate object for reading fgout frames:
-fgout_grid1 = fgout_tools.FGoutGrid(2, outdir, output_format)
-fgout_grid2 = fgout_tools.FGoutGrid(5, outdir, output_format)
+fgout_grid1 = fgout_tools.FGoutGrid(2, outdir, output_format, qmap)
+fgout_grid1.read_fgout_grids_data(2)
+fgout_grid2 = fgout_tools.FGoutGrid(5, outdir, output_format, qmap)
+fgout_grid2.read_fgout_grids_data(5)
 
 
 # transect:
@@ -46,10 +51,26 @@ xtrans = linspace(x1trans, x2trans, 1000)
 ytrans = linspace(y1trans, y2trans, 1000)
 
 # fgout frames to include in animation:
-fgframes1 = range(1,122,1) # 20 minutes
-#fgframes1 = range(1,38,1) # 6 minutes
-fgframes2 = fgframes1
 
+tfinal = 10*60.  # create animation up to this time (or end of computation)
+
+# use all frames for fgout grid 2 up to time tfinal (spaced every 10 sec)
+fgframes1 = [n+1 for n in range(len(fgout_grid1.times)) \
+               if fgout_grid1.times[n] <= tfinal]
+print('+++ fgframes1 = ',fgframes1)
+print('For fgout grid 2, using %i frames up to frame %i, t = %i sec' \
+        % (len(fgframes1), fgframes1[-1], fgout_grid1.times[fgframes1[-1]-1]))
+        
+
+# select frames for fgout grid 5 every 10 seconds up to tfinal:
+fgframes2 = [n+1 for n in range(len(fgout_grid2.times)) \
+               if ((fgout_grid2.times[n] <= tfinal) and \
+                  (mod(fgout_grid2.times[n], 10) == 0))]
+
+#print('+++ fgframes2 = ',fgframes2)
+print('For fgout grid 5, using %i frames up to frame %i, t = %i sec' \
+        % (len(fgframes2), fgframes2[-1], fgout_grid2.times[fgframes2[-1]-1]))
+        
 fgframe1 = fgframes1[0] # start with first frame
 fgframe2 = fgframes2[0] # for fgout grid 2 
 
@@ -57,7 +78,7 @@ fgout1 = fgout_grid1.read_frame(fgframe1) # fgout grid offshore region
 fgout2 = fgout_grid2.read_frame(fgframe2) # finer fgout grid over Nu'u
 
 # compute debris paths based on fgout2:
-debris_paths, dbnos_water, dbnos_land = compute_debris_paths(mstr)
+debris_paths, dbnos_water, dbnos_land = compute_debris_paths(mstr, tfinal)
 
 
 
@@ -214,9 +235,9 @@ axtrans.ticklabel_format(useOffset=False)
 
 # The artists that will be updated for subsequent frames:
 update_artists = (B_plot1, eta_plot1, B_plot2, eta_plot2,
-                  Bfill_plot, etafill_plot, Btrans_plot, etatrans_plot,
-                  title_text, points_water, points_land)
-        
+                      Bfill_plot, etafill_plot, Btrans_plot, etatrans_plot,
+                      title_text, points_water, points_land)
+            
 figdummy,axdummy = subplots()
 
 def update(k, *update_artists):
@@ -224,14 +245,15 @@ def update(k, *update_artists):
     Update an exisiting plot with solution from fgout frame fgframeno.
     The artists in update_artists must have new data assigned.
     """
-        
+
     #fgout1 = fgout_grid1.read_frame(fgframeno)
     #fgout2 = fgout_grid2.read_frame(2*fgframeno-1)
 
     fgout1 = fgout_grid1.read_frame(fgframes1[k])
     fgout2 = fgout_grid2.read_frame(fgframes2[k])
 
-    print('Updating plot at time %s' % timedelta(seconds=fgout1.t))
+    print('Updating plot at time %s and %s' \
+            % (timedelta(seconds=fgout1.t), timedelta(seconds=fgout2.t)))
     
     # unpack update_artists (must agree with definition above):
     B_plot1, eta_plot1, B_plot2, eta_plot2, \

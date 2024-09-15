@@ -373,7 +373,7 @@ def setrun(claw_pkg='geoclaw'):
     # for moving topography, append lines of the form :   (<= 1 allowed for now!)
     #   [topotype, fname]
 
-    dtopo_data.dtopofiles = [[3, dtopodir + '/slump_05m.dtt3']]
+    dtopo_data.dtopofiles = [[3, dtopodir + '/slump_10m.dtt3']]
 
     dtopo_data.dt_max_dtopo = 2.
 
@@ -561,7 +561,7 @@ def setrun(claw_pkg='geoclaw'):
         # grid south Maui
         fgout_dx = 1./1200   # target resolution
         fgout_dt = 10.      # time increment (sec)
-        fgout = fgout_tools.FGoutGrid()
+        fgout = fgout_tools.FGoutGrid(qmap='geoclaw-bouss')
         fgout.fgno = 2
         fgout.point_style = 2       # will specify a 2d grid of points
         fgout.output_format = 'binary32'
@@ -580,10 +580,11 @@ def setrun(claw_pkg='geoclaw'):
         # grid around Nu'u Refuge pond with 1/9" resolution
         fgout_dx = 1./(9*3600)   # target resolution
         fgout_dt = 10.      # time increment (sec)
-        fgout = fgout_tools.FGoutGrid()
+        fgout = fgout_tools.FGoutGrid(qmap='geoclaw-bouss')
         fgout.fgno = 5
         fgout.point_style = 2       # will specify a 2d grid of points
         fgout.output_format = 'binary32'
+        fgout.output_style = 2  # list of times
         #fgmax_extent=[-156.1825,-156.175,20.625,20.628] 
         fgout.x1 = -156.1825  # specify edges (fgout pts will be cell centers)
         fgout.x2 = -156.175
@@ -591,9 +592,8 @@ def setrun(claw_pkg='geoclaw'):
         fgout.y2 = 20.63
         fgout.nx = int(round((fgout.x2 - fgout.x1) / fgout_dx))
         fgout.ny = int(round((fgout.y2 - fgout.y1) / fgout_dx))
-        fgout.tstart = 0.
-        fgout.tend = 2*3600.
-        fgout.nout = int(round((fgout.tend - fgout.tstart) / fgout_dt)) + 1
+        fgout.output_times = list(range(0,120,10)) + list(range(120,360,2)) \
+                                + list(range(360,1201,10))
         fgout_grids.append(fgout)    # written to fgout_grids.data
 
 

@@ -1,19 +1,29 @@
 from pylab import *
 
-def compute_debris_paths(mstr):
+def compute_debris_paths(mstr, tfinal):
 
     import debris_tools
+    #from clawpack.geoclaw import debris_tools
     from clawpack.geoclaw import fgout_tools
     from scipy.interpolate import interp1d
 
     outdir = '_output_%sm' % mstr
     output_format = 'binary32'
+    qmap = 'geoclaw-bouss'  # defines mapping for fgout variables
 
-    fgout_grid2 = fgout_tools.FGoutGrid(5, outdir, output_format)
+    fgno = 5
+    fgout_grid2 = fgout_tools.FGoutGrid(fgno, outdir, output_format, qmap)
+    fgout_grid2.read_fgout_grids_data(fgno)
+    #fgout_grid2.read_fgout_grids_data_pre511(fgno)
     print('Looking for output in ',outdir)
-    output_format = 'binary32'
-    
-    fgframes2 = range(1,122,1) # 20 minutes
+
+    # use all frames up to time tfinal:
+    fgframes2 = [n+1 for n in range(len(fgout_grid2.times)) \
+                   if fgout_grid2.times[n] <= tfinal]
+                   
+    print('In nuu_debris, fgout grid 5, using %i frames up to frame %i, t = %i sec' \
+        % (len(fgframes2), fgframes2[-1], fgout_grid2.times[fgframes2[-1]-1]))    
+                      
     fgframe2 = fgframes2[0] # initial frame for fgout grid 2 
     fgout2 = fgout_grid2.read_frame(fgframe2)
 
@@ -50,7 +60,8 @@ def compute_debris_paths(mstr):
     # same for all debris particles:
     grounding_depth = 0.1
     grounding_speed = 5.
-    drag_factor = None
+    #drag_factor = None
+    drag_factor = 10.
             
     # set initial velocities to 0 (or may want to interpolate from fgout0 if t0>0?)
     u0 = 0.

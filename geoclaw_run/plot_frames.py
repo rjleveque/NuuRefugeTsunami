@@ -18,18 +18,41 @@ from nuu_debris import compute_debris_paths
 graphics_dir = os.path.abspath('../topo')
 hillshade_image = load(graphics_dir + '/NuuHillshadeOffshore.npy')
 hillshade_extent = loadtxt(graphics_dir + '/NuuHillshadeOffshore_extent.txt')
-figure_format = 'pdf'
+figure_format = 'png'
 
-mstr = '10'  # slump amplitude (rerun code for 05, 10, 15)
+mstr = '05'  # slump amplitude (rerun code for 05, 10, 15)
 outdir = '_output_%sm' % mstr
 output_format = 'binary32'
+qmap = 'geoclaw-bouss'  # defines mapping for fgout variables
 
 # Instantiate object for reading fgout frames:
-fgout_grid1 = fgout_tools.FGoutGrid(2, outdir, output_format)
-fgout_grid2 = fgout_tools.FGoutGrid(5, outdir, output_format)
+fgout_grid1 = fgout_tools.FGoutGrid(2, outdir, output_format, qmap)
+fgout_grid1.read_fgout_grids_data(2)
+fgout_grid2 = fgout_tools.FGoutGrid(5, outdir, output_format, qmap)
+fgout_grid2.read_fgout_grids_data(5)
 
-fgframes1 = range(1,122,1) # 20 minutes
-fgframes2 = fgframes1
+#fgframes1 = range(1,122,1) # 20 minutes
+#fgframes2 = fgframes1
+
+tfinal = 20*60.  # use fgout frames up to this time (or end of computation)
+
+# use all frames for fgout grid 2 up to time tfinal (spaced every 10 sec)
+fgframes1 = [n+1 for n in range(len(fgout_grid1.times)) \
+               if fgout_grid1.times[n] <= tfinal]
+print('+++ fgframes1 = ',fgframes1)
+print('For fgout grid 2, using %i frames up to frame %i, t = %i sec' \
+        % (len(fgframes1), fgframes1[-1], fgout_grid1.times[fgframes1[-1]-1]))
+        
+
+# select frames for fgout grid 5 every 10 seconds up to tfinal:
+fgframes2 = [n+1 for n in range(len(fgout_grid2.times)) \
+               if ((fgout_grid2.times[n] <= tfinal) and \
+                  (mod(fgout_grid2.times[n], 10) == 0))]
+
+#print('+++ fgframes2 = ',fgframes2)
+print('For fgout grid 5, using %i frames up to frame %i, t = %i sec' \
+        % (len(fgframes2), fgframes2[-1], fgout_grid2.times[fgframes2[-1]-1]))
+        
 
 fgframe1 = fgframes1[0] # start with first frame
 fgframe2 = fgframes2[0] # for fgout grid 2 
@@ -225,7 +248,9 @@ def make_plots(debris_paths, dbnos_water, dbnos_land):
             savefig(fname, bbox_inches='tight')
             print('Created ',fname)
         
-        plot_nuu_fgframe(k, debris_paths, dbnos_water, dbnos_land)
+        k2 = fgframes2[k-1]
+        print('+++ k2 = %i, t = %.1f' % (k2,fgout_grid2.times[k2-1]))
+        plot_nuu_fgframe(k2, debris_paths, dbnos_water, dbnos_land)
             
         fname = 'nuu_frame%s_%sm.%s' \
                 % (str(k).zfill(3), mstr, figure_format)
@@ -236,7 +261,7 @@ def make_plots(debris_paths, dbnos_water, dbnos_land):
 if __name__=='__main__':
 
     print('Making plots for slump amplitude %s' % mstr)
-    debris_paths, dbnos_water, dbnos_land = compute_debris_paths(mstr)
+    debris_paths, dbnos_water, dbnos_land = compute_debris_paths(mstr, tfinal)
     make_plots(debris_paths, dbnos_water, dbnos_land)
     
     make_gauge_transect_plot()
