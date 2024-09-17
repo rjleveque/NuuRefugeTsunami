@@ -36,7 +36,7 @@ def plot_gauge(gaugeno,outdir,plot_color):
     legend(loc='upper right',framealpha=1,fontsize=12)
 
     subplot(212)
-    plot(t, s, color=plot_color,label='Gauge %s' % gaugeno)
+    plot(t, s, color=plot_color,label='Speed, Gauge %s' % gaugeno)
     xlabel('time (minutes)', fontsize=12)
     ylabel('speed (m/s)', fontsize=12)
     xlim(0,20)

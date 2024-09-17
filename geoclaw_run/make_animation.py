@@ -52,7 +52,7 @@ ytrans = linspace(y1trans, y2trans, 1000)
 
 # fgout frames to include in animation:
 
-tfinal = 10*60.  # create animation up to this time (or end of computation)
+tfinal = 20*60.  # create animation up to this time (or end of computation)
 
 # use all frames for fgout grid 2 up to time tfinal (spaced every 10 sec)
 fgframes1 = [n+1 for n in range(len(fgout_grid1.times)) \
@@ -309,8 +309,6 @@ def update(k, *update_artists):
     dp = dummy.get_paths()[0]
     dummy.remove()
     etafill_plot.set_paths([dp.vertices])
-    
-    #fig.canvas.draw_idle()
     
     update_artists = (B_plot1, eta_plot1, B_plot2, eta_plot2,
                       Bfill_plot, etafill_plot, Btrans_plot, etatrans_plot,

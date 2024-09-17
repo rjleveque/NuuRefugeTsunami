@@ -18,7 +18,7 @@ from nuu_debris import compute_debris_paths
 graphics_dir = os.path.abspath('../topo')
 hillshade_image = load(graphics_dir + '/NuuHillshadeOffshore.npy')
 hillshade_extent = loadtxt(graphics_dir + '/NuuHillshadeOffshore_extent.txt')
-figure_format = 'png'
+figure_format = 'jpg'
 
 mstr = '05'  # slump amplitude (rerun code for 05, 10, 15)
 outdir = '_output_%sm' % mstr
@@ -217,6 +217,18 @@ def annotate_plot():
          label='Wedge clast 14')
 
     legend(loc='upper right',facecolor=[.2,.2,.2],labelcolor='w',framealpha=1)
+    
+    # add arrow showing direction from slump:
+    x0 = -156.2  # longitude
+    y0 = 20.59   # latitude
+    x1 = -156.179; y1 = 20.6257
+    xx = x1-x0
+    yy = y1-y0
+    dx,dy = array([xx,yy]) * .0007/sqrt(xx**2 + yy**2)
+    arrow(x1-dx,y1-dy,dx,dy,length_includes_head=True,width=0.00007,
+          facecolor='yellow')
+    text(x1-3*dx, y1-0.5*dy, 'Direction from\nslump centroid',
+         backgroundcolor='lightyellow')
 
 
 def make_initial_particle_plot(debris_paths, dbnos_water, dbnos_land):
