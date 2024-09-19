@@ -5,6 +5,8 @@ Clawpack v5.10.0 (or later) is required, since the dispersive SGN equation
 is used rather than shallow water equations.  See
     https://www.clawpack.org/installing.html
     https://www.clawpack.org/bouss2d.html
+The file setenv.sh is a sample of some environment variables that need to be
+set to use the Boussinesq solver.
 
 For general information on running GeoClaw, see the documentation at
     https://www.clawpack.org/contents.html#using-the-fortran-codes
@@ -57,4 +59,17 @@ An animation can be made via:
 
 Adjust mstr in this script to adjust which output directory is being used.
 Creating the animation requires that ffmpeg is installed.
+
+--------------------------------------------------------------------
+Make PyVista 3D animation:
+
+A 3D animation of the tsunami hitting shore and carrying some particle
+inland can now be created using the PyVista plotting package, for
+installation instructions, see 
+    https://docs.pyvista.org/getting-started/installation.html
+
+Then, after adjusting mstr in this script to adjust which output directory
+is being used, make the animation via:
+
+    python pyvista_fgout_Nuu_debris.py
 
