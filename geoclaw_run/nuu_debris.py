@@ -1,7 +1,20 @@
 from pylab import *
 
-def compute_debris_paths(mstr, tfinal):
+def compute_debris_paths(mstr, tfinal, dxd=0.0001):
 
+    """
+    Load in fgout frames up to time tfinal from the tsunami simulation using
+    the slump amplitude specified by the string mstr.
+    
+    Initial debris locations are on a regular grid with spacing dxd in both
+    the x and y direction, over a portion of the beach region as specified in
+    this routine. 
+    dxd = 0.0001 was used for the figures in the paper,
+    dxd = 0.0002 was used for making the 3D PyVista animations.
+    
+    Code from debris_tools is used to move the debris based on the velocities
+    loaded from the fgout frames.
+    """
     import debris_tools
     #from clawpack.geoclaw import debris_tools
     from clawpack.geoclaw import fgout_tools
@@ -69,7 +82,7 @@ def compute_debris_paths(mstr, tfinal):
 
     x1,x2 = -156.181, -156.177
     y1,y2 = 20.625, 20.6273
-    dxd = 0.0001
+    #dxd = 0.0001 # now input argument -- spacing between debris particles
 
     dyd = dxd * cos(21*pi/180)
     xd = arange(x1, x2, dxd)

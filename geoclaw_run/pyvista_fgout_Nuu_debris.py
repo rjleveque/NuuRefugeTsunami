@@ -1,10 +1,14 @@
+"""
+Use PyVista to plot the tsunami in the Nu'u pond region from fgout grid #5.
+"""
+
 from pylab import *
 import os
 import pyvista as pv
 from clawpack.geoclaw import fgout_tools
 import debris_tools
 from clawpack.visclaw import animation_tools
-from pyvista_nuu_debris import compute_debris_paths
+from nuu_debris import compute_debris_paths
 
 global etamesh, debris_spheres
 
@@ -24,7 +28,8 @@ os.system('rm %s/*' % framedir)  # remove frames from previous version
 tfinal = 15*60.  # create animation up to this time (or end of computation)
 
 # compute debris paths based on fgout2:
-debris_paths, dbnos_water, dbnos_land = compute_debris_paths(mstr,tfinal)
+debris_paths, dbnos_water, dbnos_land = compute_debris_paths(mstr,tfinal,
+                                                             dxd=0.0002)
 
 debris_spheres = len(debris_paths)*[' ']  # for plot actors
 
